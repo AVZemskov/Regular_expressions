@@ -14,23 +14,25 @@ pprint(contacts_list)
 # 1. Обработка ФИО
 contacts_processed = []
 for contact in contacts_list:
-    full_name = " ".join(contact[:3]).split()
+    if contact[0] == 'lastname' and contact[1] == 'firstname':
+        contacts_processed.append(contact.copy())
+        continue
 
+    full_name = " ".join(contact[:3]).split()
     lastname = full_name[0] if len(full_name) > 0 else ""
     firstname = full_name[1] if len(full_name) > 1 else ""
     surname = full_name[2] if len(full_name) > 2 else ""
 
-    organization = contact[3]
-    position = contact[4]
-    phone = contact[5]
-    email = contact[6]
+    organization = contact[3] if len(contact) > 3 else ""
+    position = contact[4] if len(contact) > 4 else ""
+    phone = contact[5] if len(contact) > 5 else ""
+    email = contact[6] if len(contact) > 6 else ""
 
     contacts_processed.append([lastname, firstname, surname, organization, position, phone, email])
 
 # 2. Приведение телефонов к нужному формату
 phone_pattern = re.compile(
-    r'(\+7|8)?\s*\(?(\d{3})\)?\s*[\-]?(\d{3})[\-]?(\d{2})[\-]?(\d{2})(\s*\(?(доб\.?)\s*(\d+)\)?)?'
-)
+    r'(\+7|8)?\s*\(?(\d{3})\)?\s*[\-]?(\d{3})[\-]?(\d{2})[\-]?(\d{2})(\s*\(?(доб\.?)\s*(\d+)\)?)?')
 
 for contact in contacts_processed:
     phone = contact[5]
@@ -47,7 +49,9 @@ for contact in contacts_processed:
 # 3. Объединение дублирующихся записей (группируем по фамилии и имени)
 contacts_dict = {}
 for contact in contacts_processed:
-    key = (contact[0], contact[1])  # группируем по фамилии и имени
+    if contact[0] == 'lastname':
+        continue
+    key = (contact[0], contact[1], contact[2])  # группируем по фамилии и имени
     if key in contacts_dict:
         # Объединяем с существующей записью: берем максимально полные данные
         existing = contacts_dict[key]
@@ -55,13 +59,11 @@ for contact in contacts_processed:
             if contact[i] and not existing[i]:
                 existing[i] = contact[i]
 
-            if i == 2 and contact[i] and not existing[i]:
-                existing[i] = contact[i]
     else:
         contacts_dict[key] = contact.copy()
 
-
-contacts_list_cleaned = list(contacts_dict.values())
+contacts_list_cleaned = [['lastname', 'firstname', 'surname', 'organization', 'position', 'phone', 'email']]
+contacts_list_cleaned.extend(list(contacts_dict.values()))
 
 # TODO 2: сохраните получившиеся данные в другой файл
 # код для записи файла в формате CSV
