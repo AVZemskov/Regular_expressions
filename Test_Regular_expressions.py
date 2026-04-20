@@ -112,7 +112,7 @@ pprint(contacts_deduplicated)
 
 # TODO 2: сохраните получившиеся данные в другой файл
 # код для записи файла в формате CSV
-with open("_phonebook.csv", "w", encoding="utf-8", newline='') as f:
+with open("phonebook.csv", "w", encoding="utf-8", newline='') as f:
     writer = csv.writer(f, delimiter=',')
     writer.writerows(contacts_deduplicated)
 
